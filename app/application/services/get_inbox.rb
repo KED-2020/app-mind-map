@@ -8,5 +8,6 @@ module MindMap
       include Dry::Transaction
 
       # ToDo
+    end
   end
 end
