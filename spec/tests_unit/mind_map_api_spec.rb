@@ -25,7 +25,7 @@ describe 'Unit test of MindMap API gateway' do
   #   _(data['url']).must_include GOOD_INBOX_ID
   # end
 
-  it 'must not be able to get an nonexisted inbox' do
+  it 'must not be able to get a nonexisted inbox' do
     # GIVEN inbox is not in the database
 
     # WHEN we request this inbox
@@ -52,7 +52,7 @@ describe 'Unit test of MindMap API gateway' do
     _(data['name']).must_equal PROJECT_NAME
   end
 
-  # it 'must be able to get a document' do
+  # it 'must be able to get an existed document' do
   #   # GIVEN a document is in the database
   #   GOOD_DOCUMENT_ID = '??'
 
@@ -63,7 +63,7 @@ describe 'Unit test of MindMap API gateway' do
   #   _(res.success?).must_equal true
   # end
 
-  it 'must be able to get a document' do
+  it 'must not be able to get a nonexisted document' do
     # GIVEN document is not in the database
     SAD_DOCUMENT_ID = '123456789'
 
