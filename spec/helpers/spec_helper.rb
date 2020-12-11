@@ -11,8 +11,6 @@ require 'minitest/rg'
 
 require_relative '../../init'
 
-GITHUB_TOKEN = MindMap::App.config.GITHUB_TOKEN
-
 CORRECT = YAML.safe_load(File.read("#{__dir__}/../fixtures/github_results.yml"))
 
 SEARCH_QUERY = 'pytorch-transformers in:readme'

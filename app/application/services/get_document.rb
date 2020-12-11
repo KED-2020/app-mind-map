@@ -1,20 +1,12 @@
 # frozen_string_literal: true
 
-require 'dry/monads'
+require 'dry/transaction'
 
 module MindMap
   module Service
     class GetDocument
-      include Dry::Monads::Result::Mixin
+      include Dry::Transaction
 
-      def call(id)
-        document = Repository::For.klass(Entity::Document)
-          .find_id(id)
-
-        Success(document)
-      rescue StandardError
-        Failure('Could not access database')
-      end
-    end
+      # ToDo
   end
 end
