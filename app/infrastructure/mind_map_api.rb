@@ -15,6 +15,18 @@ module MindMap
         @request.get_root.success?
       end
 
+      def get_inbox(inbox_url)
+        @request.get_inbox(inbox_url)
+      end
+
+      def add_document(project_url)
+        @request.add_document(project_url)
+      end
+
+      def get_document(document_id)
+        @request.get_document(document_id)
+      end
+
       # HTTP request transmitter
       class Request
         def initialize(config)
@@ -22,8 +34,24 @@ module MindMap
           @api_root = config.API_HOST + '/api/v1'
         end
 
+        # get '/'
         def get_root
           call_api('get')
+        end
+
+        # get 'api/v1/inboxes/{inbox_url}'
+        def get_inbox(inbox_url)
+          call_api('get', ['inboxes', inbox_url])
+        end
+
+        # post 'api/v1/favorites/documents?html_url={PROJECT_URL}'
+        def add_document(project_url)
+          call_api('post', ['favorites', 'documents'], 'html_url' => project_url)
+        end
+
+        # get 'api/v1/favorites/documents/{document_id}'
+        def get_document(document_id)
+          call_api('get', ['favorites', 'documents', document_id])
         end
 
         private
@@ -51,14 +79,6 @@ module MindMap
 
         def success?
           code.between?(SUCCESS_CODES.first, SUCCESS_CODES.last)
-        end
-
-        def message
-          payload['message']
-        end
-
-        def payload
-          body.to_s
         end
       end
     end
