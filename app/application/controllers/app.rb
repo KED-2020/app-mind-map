@@ -49,36 +49,40 @@ module MindMap
             guest_inbox_id = 'guest-inbox'
 
             # Find the inbox specified by the url.
-            inbox = Repository::Inbox::For.klass(Entity::Inbox).find_url(guest_inbox_id)
+            result = Service::GetInbox.new.call(guest_inbox_id)
 
-            unless inbox
+            if result.failure?
+              # flash[:error] = result.failure
               flash[:error] = "Guest Inbox doesn't exist"
               routing.redirect '/'
             end
 
-            # Currently, no suggestions for an guest inbox.
-            suggestions = []
+            inbox = result.value!
+            viewable_inbox = Views::Inbox.new(inbox, [])
 
             # Show the user their inbox
-            view 'inbox', locals: { inbox: Views::Inbox.new(inbox, suggestions) }
+            view 'inbox', locals: { inbox: viewable_inbox }
           end
         end
 
         # GET /inbox/{inbox_id}
         routing.on String do |inbox_id|
           routing.get do
-            inbox_find = MindMap::Forms::FindInbox.new.call(inbox_id: inbox_id)
+            # inbox_find = MindMap::Forms::FindInbox.new.call(inbox_id: inbox_id)  # any usage?
 
-            result = Service::GetInbox.new.call(inbox_id: inbox_id)
+            result = Service::GetInbox.new.call(inbox_id)
 
             if result.failure?
-              flash[:error] = result.failure
+              # flash[:error] = result.failure
+              flash[:error] = "Inbox doesn't exist"
               routing.redirect '/'
             end
 
             inbox = result.value!
+            viewable_inbox = Views::Inbox.new(inbox, [])
+
             # Show the user their inbox
-            view 'inbox', locals: { inbox: Views::Inbox.new(inbox[:inbox], inbox[:suggestions]) }
+            view 'inbox', locals: { inbox: viewable_inbox }
           end
         end
 
@@ -96,16 +100,19 @@ module MindMap
           new_inbox_id = ''
 
           # Find the inbox specified by the url.
-          result = Service::GetInbox.new.call(inbox_id: new_inbox_id)
+          result = Service::GetInbox.new.call(new_inbox_id)
 
           if result.failure?
-            flash[:error] = result.failure
+            # flash[:error] = result.failure
+            flash[:error] = "New Inbox doesn't exist"
             routing.redirect '/'
           end
 
           inbox = result.value!
+          viewable_inbox = Views::Inbox.new(inbox, [])
+
           # Show the user their inbox
-          view 'inbox', locals: { inbox: Views::Inbox.new(inbox[:inbox], inbox[:suggestions]) }
+          view 'inbox', locals: { inbox: viewable_inbox }
         end
       end
 
@@ -119,7 +126,7 @@ module MindMap
         routing.on 'documents' do
           # POST /favorites/documents
           routing.post do
-            html_url = MindMap::Forms::AddDocument.new.call(routing.params)
+            html_url = Forms::AddDocument.new.call(routing.params)
 
             result = Service::AddDocument.new.call(html_url)
 
@@ -135,7 +142,7 @@ module MindMap
           # GET /favorites/documents/{document_id}
           routing.on String do |document_id|
             routing.get do
-              result = MindMap::Service::GetDocument.new.call(document_id)
+              result = Service::GetDocument.new.call(document_id)
 
               if result.failure?
                 flash[:error] = result.failure
