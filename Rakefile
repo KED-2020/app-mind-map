@@ -32,24 +32,24 @@ end
 namespace :rack do
   desc 'Run Roda app in dev env'
   task :dev do
-    sh 'rackup -p 9292'
+    sh 'rackup -p 8282'
   end
 
   desc 'Run Roda app in test env'
   task :test do
-    sh 'RACK_ENV=test rackup -p 9000'
+    sh 'RACK_ENV=test rackup -p 8000'
   end
 end
 
 namespace :rerack do
   desc 'Keep restarting web app upon changes in dev env'
   task :dev do
-    sh 'rerun -c "rackup -p 9292" --ignore "coverage/*"'
+    sh 'rerun -c "rackup -p 8282" --ignore "coverage/*"'
   end
 
   desc 'Keep restarting web app upon changes in test env'
   task :test do
-    sh 'rerun -c "RACK_ENV=test rackup -p 9000" --ignore "coverage/*"'
+    sh 'rerun -c "RACK_ENV=test rackup -p 8000" --ignore "coverage/*"'
   end
 end
 
@@ -62,15 +62,6 @@ namespace :console do
   desc 'Run application console (irb) in test env'
   task :test do
     sh 'RACK_ENV=test irb -r ./init'
-  end
-end
-
-namespace :vcr do
-  desc 'Delete cassette fixtures'
-  task :wipe do
-    sh 'rm spec/fixtures/cassettes/*.yml' do |ok, _|
-      puts(ok ? 'Cassettes deleted' : 'No cassettes found')
-    end
   end
 end
 
@@ -91,38 +82,3 @@ namespace :quality do
   end
 end
 
-namespace :db do
-  task :config do
-    require 'sequel'
-    require_relative 'config/environment' # Load config
-    require_relative 'spec/helpers/database_helper'
-
-    def app
-      MindMap::App
-    end
-  end
-
-  desc 'Run Migrations'
-  task migrate: :config do
-    Sequel.extension :migration
-    puts "Migrating #{app.environment} database to the latest"
-    Sequel::Migrator.run(app.DB, 'app/infrastructure/database/migrations')
-  end
-
-  desc 'Wipe records from all tables'
-  task wipe: :config do
-    DatabaseHelper.setup_database_cleaner
-    DatabaseHelper.wipe_database
-  end
-
-  desc 'Delete dev or test database file'
-  task drop: :config do
-    if app.environment == :production
-      puts 'Cannot remove the production database!'
-      return
-    end
-
-    FileUtils.rm(MindMap::App.config.DB_FILENAME)
-    puts "Deleted #{MindMap::App.config.DB_FILENAME}"
-  end
-end

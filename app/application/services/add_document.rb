@@ -4,59 +4,39 @@ require 'dry/transaction'
 
 module MindMap
   module Service
-    # Adds a document to the database
     class AddDocument
       include Dry::Transaction
 
-      step :parse_url
-      step :find_document
-      step :store_document
+      step :validate_url
+      step :request_document
+      step :reify_document
 
       private
 
-      def parse_url(input)
+      def validate_url(input)
         if input.success?
-          document_owner, document = input[:html_url].split('/')[-2..-1]
-          Success(document_path: "#{document_owner}/#{document}", html_url: input[:html_url])
+          document_url = input[:html_url]
+          Success(document_url: document_url)
         else
-          Failure('Invalid link to GitHub document provided')
+          Failure(input.errors.values.join('; '))
         end
-      rescue StandardError
-        Failure('Invalid link to GitHub document provided')
       end
 
-      def find_document(input)
-        if (document = document_from_database(input))
-          input[:local_document] = document
-        else
-          input[:remote_document] = document_from_github(input)
-        end
+      def request_document(input)
+        result = MindMap::Gateway::Api.new(MindMap::App.config).add_document(input[:document_url])
 
-        Success(input)
+        result.success? ? Success(result.payload) : Failure(result.message)
       rescue StandardError => e
-        Failure(e.to_s)
+        puts e.inspect + '\n' + e.backtrace
+        Failure('Cannot add document right now; please try again later')
       end
 
-      def store_document(input)
-        document = if input[:remote_document]
-                     MindMap::Repository::For.klass(Entity::Document).create(input[:remote_document])
-                   else
-                     input[:local_document]
-                   end
-
-        Success(document)
+      def reify_document(document_json)
+        Representer::Document.new(OpenStruct.new)
+          .from_json(document_json)
+          .then { |document| Success(document) }
       rescue StandardError
-        Failure('Having trouble accessing the database')
-      end
-
-      def document_from_database(input)
-        MindMap::Repository::For.klass(Entity::Document).find_html_url(input[:html_url])
-      end
-
-      def document_from_github(input)
-        Github::DocumentMapper.new(MindMap::App.config.GITHUB_TOKEN).find(input[:document_path])
-      rescue StandardError
-        raise 'Could not find that project on Github'
+        Failure('Cannot add document right now; please try again later')
       end
     end
   end

@@ -4,39 +4,29 @@ require 'dry/transaction'
 
 module MindMap
   module Service
-    # Get an inbox with their contributions
     class GetInbox
       include Dry::Transaction
 
-      step :get_inbox
-      step :get_suggestions
-      step :add_suggestions_to_inbox
+      step :request_inbox
+      step :reify_inbox
 
       private
 
-      def get_inbox(input)
-        input[:inbox] = Repository::Inbox::For.klass(Entity::Inbox).find_url(input[:inbox_id])
+      def request_inbox(inbox_id)
+        result = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id)
 
-        input[:inbox] ? Success(input) : Failure('Inbox not found')
-      rescue StandardError
-        Failure('Having trouble accessing the database')
+        result.success? ? Success(result.payload) : Failure(result.message)
+      rescue StandardError => e
+        puts e.inspect + '\n' + e.backtrace
+        Failure('Cannot get inbox right now; please try again later')
       end
 
-      def get_suggestions(input)
-        input[:suggestions] = Mapper::Inbox.new(App.config.GITHUB_TOKEN).suggestions || []
-
-        Success(input)
+      def reify_inbox(inbox_json)
+        Representer::Inbox.new(OpenStruct.new)
+          .from_json(inbox_json)
+          .then { |inbox| Success(inbox) }
       rescue StandardError
-        Failure('Having trouble receiving the suggestion')
-      end
-
-      def add_suggestions_to_inbox(input)
-        input[:inbox] = Repository::Inbox::For.klass(Entity::Inbox).add_suggestions(input[:inbox], input[:suggestions])
-        input[:suggestions] = input[:inbox].suggestions
-
-        Success(input)
-      rescue StandardError
-        Failure('Having trouble saving the suggestions to an inbox')
+        Failure('Cannot get inbox right now; please try again later')
       end
     end
   end
