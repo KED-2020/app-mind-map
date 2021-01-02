@@ -19,6 +19,14 @@ module MindMap
         @request.get_inbox(inbox_url)
       end
 
+      def add_inbox(inbox)
+        @request.add_inbox(inbox)
+      end
+
+      def get_new_inbox_id
+        @request.get_new_inbox_id
+      end
+
       def add_document(project_url)
         @request.add_document(project_url)
       end
@@ -44,6 +52,15 @@ module MindMap
           call_api('get', ['inboxes', inbox_url])
         end
 
+        def add_inbox(inbox)
+          post_api(['inboxes'], inbox)
+        end
+
+        # get 'api/v1/inboxes/mnemonics'
+        def get_new_inbox_id
+          call_api('get', ['inboxes', 'mnemonics'])
+        end
+
         # post 'api/v1/favorites/documents?html_url={PROJECT_URL}'
         def add_document(project_url)
           call_api('post', ['favorites', 'documents'], 'html_url' => project_url)
@@ -61,11 +78,28 @@ module MindMap
             .then { |str| str ? '?' + str : '' }
         end
 
+        def post_api(resources = [], params = {})
+          api_path = resources.empty? ? @api_host : @api_root
+          url = [api_path, resources].flatten.join('/')
+
+          HTTP.headers('Accept' => 'application/json').post(url, :form => params)
+            .then { |http_response| Response.new(http_response) }
+        rescue StandardError
+          raise "Invalid URL request: #{url}"
+        end
+
         def call_api(method, resources = [], params = {})
           api_path = resources.empty? ? @api_host : @api_root
-          url = [api_path, resources].flatten.join('/') + params_str(params)
-          HTTP.headers('Accept' => 'application/json').send(method, url)
-            .then { |http_response| Response.new(http_response) }
+          url = [api_path, resources].flatten.join('/')
+          url = url + params_str unless params.empty?
+
+          # if method.lowercase == 'post'
+          #   HTTP.headers('Accept' => 'application/json').post(url, :json => params)
+          #     .then { |http_response| Response.new(http_response) }
+          # else
+            HTTP.headers('Accept' => 'application/json').send(method, url)
+              .then { |http_response| Response.new(http_response) }
+          # end
         rescue StandardError
           raise "Invalid URL request: #{url}"
         end
@@ -81,8 +115,24 @@ module MindMap
           code.between?(SUCCESS_CODES.first, SUCCESS_CODES.last)
         end
 
+        def failure?
+          !success?
+        end
+
+        def ok?
+          code == 200
+        end
+
+        def added?
+          code == 201
+        end
+
+        def processing?
+          code == 202
+        end
+
         def message
-          payload['message']
+          JSON.parse(payload)['message']
         end
 
         def payload

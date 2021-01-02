@@ -13,7 +13,10 @@ module MindMap
       private
 
       def request_inbox(inbox_id)
+        pp inbox_id
         result = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id)
+
+        pp result
 
         result.success? ? Success(result.payload) : Failure(result.message)
       rescue StandardError => e
