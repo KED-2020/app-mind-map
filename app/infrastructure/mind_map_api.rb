@@ -63,7 +63,7 @@ module MindMap
 
         # post 'api/v1/favorites/documents?html_url={PROJECT_URL}'
         def add_document(project_url)
-          call_api('post', ['favorites', 'documents'], 'html_url' => project_url)
+          post_api(['favorites', 'documents'], { 'html_url' => project_url })
         end
 
         # get 'api/v1/favorites/documents/{document_id}'
@@ -93,13 +93,8 @@ module MindMap
           url = [api_path, resources].flatten.join('/')
           url = url + params_str unless params.empty?
 
-          # if method.lowercase == 'post'
-          #   HTTP.headers('Accept' => 'application/json').post(url, :json => params)
-          #     .then { |http_response| Response.new(http_response) }
-          # else
-            HTTP.headers('Accept' => 'application/json').send(method, url)
+          HTTP.headers('Accept' => 'application/json').send(method, url)
               .then { |http_response| Response.new(http_response) }
-          # end
         rescue StandardError
           raise "Invalid URL request: #{url}"
         end

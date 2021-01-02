@@ -15,6 +15,7 @@ require_relative '../../init'
 def homepage
   MindMap::App.config.APP_HOST
 end
+
 GOOD_INBOX_ID = '12345'
 SAD_INBOX_ID = '54321'
 BAD_INBOX_ID = 'foo123'

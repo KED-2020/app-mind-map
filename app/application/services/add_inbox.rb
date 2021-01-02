@@ -36,8 +36,7 @@ module MindMap
         Representer::Inbox.new(OpenStruct.new)
           .from_json(input)
           .then { |inbox| Success(inbox) }
-      rescue StandardError => e
-        pp e
+      rescue StandardError
         Failure(REIFY_FAILURE)
       end
     end

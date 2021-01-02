@@ -13,13 +13,13 @@ namespace :spec do
     t.pattern = 'spec/**/*_spec.rb'
     t.warning = false
   end
+end
 
-  # NOTE: run `rake run:test` in another process
-  desc 'Run acceptance test'
-  Rake::TestTask.new(:accept) do |t|
-    t.pattern = 'spec/tests_acceptance/*_acceptance.rb'
-    t.warning = false
-  end
+# NOTE: run `rake run:test` in another process
+desc 'Run acceptance test'
+Rake::TestTask.new(:spec_accept) do |t|
+  t.pattern = 'spec/tests_acceptance/*_acceptance.rb'
+  t.warning = false
 end
 
 namespace :respec do

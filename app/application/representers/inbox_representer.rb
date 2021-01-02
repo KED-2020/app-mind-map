@@ -7,11 +7,13 @@ require_relative 'suggestion_representer'
 
 module MindMap
   module Representer
+    # Inbox Representer
     class Inbox < Roar::Decorator
       include Roar::JSON
       include Roar::Hypermedia
       include Roar::Decorator::HypermediaConsumer
 
+      property :id
       property :name
       property :description
       property :url

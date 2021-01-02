@@ -15,7 +15,7 @@ module MindMap
 
       rule(:url) do
         unless URL_REGEX.match?(value)
-          key.failure('is an invalid project name')
+          key.failure('is an invalid id. You need a unique id for this inbox.')
         end
       end
     end

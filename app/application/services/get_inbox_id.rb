@@ -13,7 +13,6 @@ module MindMap
 
         result.success? ? Success(result.payload) : Failure(result.message)
       rescue StandardError => e
-        pp e
         Failure('Cannot get a new inbox ID; please try again later.')
       end
     end
