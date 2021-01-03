@@ -18,7 +18,7 @@ describe 'Integration test of GetInbox service and API gateway' do
         'url' => INBOX_ID
       }
 
-      MindMap::Gateway::Api.new(MindMap::App.config).create_inbox(params)
+      MindMap::Gateway::Api.new(MindMap::App.config).add_inbox(params)
     end
 
     # WHEN we request to get an inbox
