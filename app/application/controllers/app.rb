@@ -51,6 +51,8 @@ module MindMap
 
          # GET /inbox/{inbox_id}
         routing.is String do |inbox_id|
+          @inbox_id = inbox_id
+
           routing.get do
             result = Service::GetInbox.new.call(inbox_id)
 
@@ -98,11 +100,6 @@ module MindMap
 
       # Favorites
       routing.on 'favorites' do
-        # GET /favorites
-        routing.get do
-          view 'favorites'
-        end
-
         routing.on 'documents' do
           # POST /favorites/documents
           routing.post do

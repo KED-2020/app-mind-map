@@ -33,8 +33,10 @@ footer {
 }
 
 .header {
+  display: flex;
   height: 2.5em !important;
   padding: 2.5em;
+  justify-content: space-between;
 }
 
 .header-title {

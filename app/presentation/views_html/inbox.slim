@@ -11,7 +11,7 @@
 
     ul.list-group
       - inbox.suggestions.each do |suggestion|
-          li.list-group-item.border.mb-3.p-3 id="index" title=suggestion.name
+          li.list-group-item.border.mb-3.p-3 id="#{suggestion.index_str}" title=suggestion.name
             .suggestion-heading
               .h5.my-0
                 a href=suggestion.html_url id="#{suggestion.index_str}.link"

@@ -1,2 +1,8 @@
 nav.navbar.navbar-expand-lg.bg-primary.header.mb-5
   a href="/" id="home.link" class="navbar-brand text-light header-title" Mind Map
+
+  - if @inbox_id
+    div
+      a href="/inbox/#{@inbox_id}" id="inbox.link" class="text-light mr-3" Inbox
+      a href="/inbox/#{@inbox_id}/favorites" id="inbox.link" class="text-light mr-3" Favorites
+      a href="/inbox/#{@inbox_id}/subscriptions" id="inbox.link" class="text-light mr-3" Subscriptions
