@@ -14,6 +14,5 @@ module MindMap
     Econfig.root = '.'
 
     use Rack::Session::Cookie, secret: config.SESSION_SECRET
-
   end
 end

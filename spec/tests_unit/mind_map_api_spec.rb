@@ -8,24 +8,91 @@ describe 'Unit test of MindMap API gateway' do
     _(alive).must_equal true
   end
 
-  # it 'must be able to get an existed inbox' do
-  #   # GIVEN an inbox is in the database
-  #   # We need to provide "POST inboxes/" to test this function 
-  #   # (otherwise we can only prepared the test inbox in the api backend)...
+  it 'must return a unique inbox name' do
+    # GIVEN A new inbox id is needed.
 
-  #   # WHEN we request this inbox
-  #   res = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(GOOD_INBOX_ID)
+    # WHEN we request a new inbox id.
+    res = MindMap::Gateway::Api.new(MindMap::App.config).get_new_inbox_id
 
-  #   # THEN we should see inbox information
-  #   _(res.success?).must_equal true
-  #   data = res.parse
-  #   _(data.keys).must_include 'name'
-  #   _(data.keys).must_include 'description'
-  #   _(data.keys).must_include 'url'
-  #   _(data['url']).must_include GOOD_INBOX_ID
-  # end
+    # THEN we should expect the id to be a 3-word Mnemonic
+    URL_REGEX = /([a-zA-Z]+)-([a-zA-Z]+)-([a-zA-Z]+)/.freeze
+    _(URL_REGEX.match?(res)).must_equal true
+  end
 
-  it 'must not be able to get a nonexisted inbox' do
+  it 'must be able to add an inbox' do
+    # GIVEN an inbox required fields
+    inbox_id = MindMap::Gateway::Api.new(MindMap::App.config).get_new_inbox_id.to_s
+
+    params = {
+      'name' => 'Test',
+      'description' => 'Test',
+      # This is to prevent already created errors. We want inbox_id to
+      # be unique on every call to POST.
+      'url' => inbox_id
+    }
+
+    # WHEN we request to create an inbox
+    res = MindMap::Gateway::Api.new(MindMap::App.config).add_inbox(params)
+
+    # THEN we should see the inbox information
+    _(res.success?).must_equal true
+    data = res.parse
+
+    _(data.keys).must_include 'name'
+    _(data.keys).must_include 'description'
+    _(data.keys).must_include 'url'
+    _(data['url']).must_include inbox_id
+  end
+
+  it 'must not be able to add an inbox with an incorrectly formatted id' do
+    # GIVEN an inbox with an id that is invalid
+    params = {
+      'name' => 'Test',
+      'description' => 'Test',
+      # This is to prevent already created errors. We want inbox_id to
+      # be unique on every call to POST.
+      'url' => 'def-131'
+    }
+
+    # WHEN we request to create an inbox
+    res = MindMap::Gateway::Api.new(MindMap::App.config).add_inbox(params)
+
+    # THEN we should see the error message
+    _(res.success?).must_equal false
+  end
+
+  it 'must be able to get an existing inbox' do
+    # GIVEN an inbox is in the database
+    inbox_id = 'random-inbox-name'
+
+    result = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id)
+
+    if result.success? == false
+      params = {
+        'name' => 'Test',
+        'description' => 'Test',
+        # This is to prevent already created errors. We want inbox_id to
+        # be unique on every call to POST.
+        'url' => inbox_id
+      }
+
+      MindMap::Gateway::Api.new(MindMap::App.config).add_inbox(params)
+    end
+
+    # WHEN we request this inbox
+    res = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id)
+
+    # THEN we should see inbox information
+    _(res.success?).must_equal true
+    data = res.parse
+
+    _(data.keys).must_include 'name'
+    _(data.keys).must_include 'description'
+    _(data.keys).must_include 'url'
+    _(data['url']).must_include INBOX_ID
+  end
+
+  it 'must not be able to get a non-existent inbox' do
     # GIVEN inbox is not in the database
 
     # WHEN we request this inbox
@@ -44,6 +111,7 @@ describe 'Unit test of MindMap API gateway' do
     # THEN we should see the document information
     _(res.success?).must_equal true
     data = res.parse
+    _(data.keys).must_include 'id'
     _(data.keys).must_include 'origin_id'
     _(data.keys).must_include 'name'
     _(data.keys).must_include 'description'
@@ -52,26 +120,27 @@ describe 'Unit test of MindMap API gateway' do
     _(data['name']).must_equal PROJECT_NAME
   end
 
-  # it 'must be able to get an existed document' do
-  #   # GIVEN a document is in the database
-  #   GOOD_DOCUMENT_ID = '??'
+  it 'must be able to get an existed document' do
+    # GIVEN a document is in the database
+    saved_document = MindMap::Gateway::Api.new(MindMap::App.config).add_document(PROJECT_URL)
 
-  #   # WHEN we request this document
-  #   res = MindMap::Gateway::Api.new(MindMap::App.config).get_document(GOOD_DOCUMENT_ID)
-
-  #   # THEN we should see the document information
-  #   _(res.success?).must_equal true
-  # end
-
-  it 'must not be able to get a nonexisted document' do
-    # GIVEN document is not in the database
-    SAD_DOCUMENT_ID = '123456789'
+    good_document_id = saved_document.parse["id"]
 
     # WHEN we request this document
-    res = MindMap::Gateway::Api.new(MindMap::App.config).get_document(SAD_DOCUMENT_ID)
+    res = MindMap::Gateway::Api.new(MindMap::App.config).get_document(good_document_id)
+
+    # THEN we should see the document information
+    _(res.success?).must_equal true
+  end
+
+  it 'must not be able to get a non-existent document' do
+    # GIVEN document is not in the database
+    sad_document_id = '123456789'
+
+    # WHEN we request this document
+    res = MindMap::Gateway::Api.new(MindMap::App.config).get_document(sad_document_id)
 
     # THEN we should see the error message
     _(res.success?).must_equal false
   end
 end
-

@@ -1,0 +1,33 @@
+section.border.rounded.homepage
+  h1.h4 Create New Inbox
+
+  include :flash_bar
+
+  form.py-3.inbox-search-form role="form" action="/inbox" method="post"
+    label for="url" Inbox ID
+    input {
+      type="text" name="url"
+      id="url" class="form-control"
+      placeholder="i.e. cool-brown-fox"
+      value=inbox_id
+    }
+    small.form-text.text-muted.mb-3 Inbox ID uses mneunomics to help you remember your ID easier.
+
+    label for="name" Name
+    input {
+      type="text" name="name"
+      id="name" class="form-control mb-3"
+      placeholder="What should we call this inbox?"
+    }
+
+    label for="description" Description
+    input {
+      type="text" name="description"
+      id="description" class="form-control mb-3"
+      placeholder="Tell us what your inbox is about."
+    }
+
+    button {
+      type="submit" id="inbox-submit"
+      class="btn btn-success"
+    } Create Inbox

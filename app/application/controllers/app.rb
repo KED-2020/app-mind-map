@@ -33,48 +33,29 @@ module MindMap
 
       # Inbox
       routing.on 'inbox' do
-        # GET /inbox/guest-inbox
-        routing.on 'guest-inbox' do
-          routing.get do
-            # Get guest suggestions from cookie/session
-            session[:suggestions] ||= []
+        routing.on 'new' do
+          routing.is do
+            # GET /inboxes/new => Create Inbox Form
+            routing.get do
+              result = Service::GetInboxId.new.call
 
-            session[:suggestions].insert(0, "suggestion1").uniq!
-            session[:suggestions].insert(0, "suggestion2").uniq!
-            # session[:suggestions].delete("suggestion1")
-            # session[:suggestions].delete("suggestion2")
-            # puts "guest_suggestions = #{session[:suggestions]}"
+              if result.failure?
+                flash[:error] = result.failure
+                routing.redirect '/'
+              end
 
-            # Reserve a specific id for 'guest-inbox' (# nice pattern?)
-            guest_inbox_id = 'guest-inbox'
-
-            # Find the inbox specified by the url.
-            result = Service::GetInbox.new.call(guest_inbox_id)
-
-            if result.failure?
-              # flash[:error] = result.failure
-              flash[:error] = "Guest Inbox doesn't exist"
-              routing.redirect '/'
+              view 'new_inbox', locals: { inbox_id: result.value! }
             end
-
-            inbox = result.value!
-            viewable_inbox = Views::Inbox.new(inbox, [])
-
-            # Show the user their inbox
-            view 'inbox', locals: { inbox: viewable_inbox }
           end
         end
 
-        # GET /inbox/{inbox_id}
-        routing.on String do |inbox_id|
+         # GET /inbox/{inbox_id}
+        routing.is String do |inbox_id|
           routing.get do
-            # inbox_find = MindMap::Forms::FindInbox.new.call(inbox_id: inbox_id)  # any usage?
-
             result = Service::GetInbox.new.call(inbox_id)
 
             if result.failure?
-              # flash[:error] = result.failure
-              flash[:error] = "Inbox doesn't exist"
+              flash[:error] = result.failure
               routing.redirect '/'
             end
 
@@ -86,33 +67,32 @@ module MindMap
           end
         end
 
-        # POST /inbox/
-        routing.post do
-          inbox_id = routing.params['inbox_id']
+        # POST /inboxes => Create Inbox
+        routing.is do
+          routing.post do
+            inbox_params = Forms::NewInbox.new.call(routing.params)
 
-          # Redirect to the get request
-          routing.redirect "/inbox/#{inbox_id}"
-        end
+            result = Service::AddInbox.new.call(inbox_params)
 
-        # GET /inbox
-        routing.get do
-          # Reserve a specific id for 'guest-inbox' (# nice pattern?)
-          new_inbox_id = ''
+            if result.failure?
+              flash[:error] = result.failure
+              routing.redirect "/inbox/new"
+            end
 
-          # Find the inbox specified by the url.
-          result = Service::GetInbox.new.call(new_inbox_id)
-
-          if result.failure?
-            # flash[:error] = result.failure
-            flash[:error] = "New Inbox doesn't exist"
-            routing.redirect '/'
+            routing.redirect "/inbox/#{routing.params["url"]}"
           end
 
-          inbox = result.value!
-          viewable_inbox = Views::Inbox.new(inbox, [])
+          routing.get do
+            inbox_id = routing.params['inbox_id']
 
-          # Show the user their inbox
-          view 'inbox', locals: { inbox: viewable_inbox }
+            if inbox_id.nil? || inbox_id.empty?
+              flash[:error] = 'You need to provide an inbox id'
+              routing.redirect '/'
+            end
+
+            # Redirect to the get request
+            routing.redirect "/inbox/#{inbox_id}"
+          end
         end
       end
 

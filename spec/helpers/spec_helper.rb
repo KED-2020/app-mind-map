@@ -15,9 +15,9 @@ require_relative '../../init'
 def homepage
   MindMap::App.config.APP_HOST
 end
-GOOD_INBOX_ID = '12345'
+
+GOOD_INBOX_ID = 'wonderful-day-today'
 SAD_INBOX_ID = '54321'
-BAD_INBOX_ID = 'foo123'
 SUGGESTION_NAMES = ['tensorflow', 'TensorFlow', 'TensorFlow-Examples']
 
 PROJECT_OWNER = 'derrxb'

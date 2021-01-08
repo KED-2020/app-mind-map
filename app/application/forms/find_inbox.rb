@@ -5,7 +5,7 @@ require 'dry-validation'
 module MindMap
   module Forms
     class FindInbox < Dry::Validation::Contract
-      INBOX_REGEX = %r{^\d+$}.freeze
+      URL_REGEX = /([a-zA-Z]+)-([a-zA-Z]+)-([a-zA-Z]+)/.freeze
 
       params do
         required(:inbox_id).filled(:string)
@@ -13,7 +13,7 @@ module MindMap
 
       rule(:inbox_id) do
         unless INBOX_REGEX.match?(value)
-          key.failure('is an invalid inbox id, should be integer number')
+          key.failure('is an invalid inbox id, should be three-word mnemonic')
         end
       end
     end
