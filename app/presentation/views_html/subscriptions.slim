@@ -1,0 +1,33 @@
+.inbox
+  include :flash_bar
+
+  div.subscriptions-page-header.pb-2
+    h1.h2.pb-1.my-0.page-title id='subscriptions' Subscriptions
+    button type="button" id="add-subscription" onclick="location.href='/inbox/#{inbox_id}/subscriptions/new';" class="btn btn-success" Add Subscription
+
+  p.pb-2.mb-0.text-muted id='subscriptions-description'
+    = 'This is where we manage the subscriptions for your inbox. Subscriptions help us curate better suggestions for you.'
+
+  - if subscriptions.any?
+    table.table
+      thead
+        tr
+          th scope="col" #
+          th scope="col" Name
+          th scope="col" Description
+          th scope="col" Keywords
+          th scope="col" Source
+      tbody
+        - subscriptions.each do |subscription|
+          tr
+            th scope="row" 1
+            td = subscription.name
+            td = subscription.description
+            td
+              - subscription.keywords do |keyword|
+                  span.badge.badge-pill.badge-primary.mr-1 = keyword
+            td Github, Wikimedia
+  - else
+    h5 No Subscriptions Found
+
+    button type="button" id="add-subscription" onclick="location.href='/inbox/#{inbox_id}/subscriptions/new';" class="btn btn-success" Add Subscription

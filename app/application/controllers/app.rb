@@ -90,7 +90,18 @@ module MindMap
             end
 
             routing.get do
-              view 'subscriptions'
+              result = Service::GetSubscriptions.new.call(inbox_id)
+
+              if result.failure?
+                flash[:error] = result.failure
+                routing.redirect '/'
+              end
+
+              subscriptions = result.value!.subscriptions
+
+              viewable_subscriptions = Views::SubscriptionsList.new(subscriptions)
+
+              view 'subscriptions', locals: { subscriptions: viewable_subscriptions, inbox_id: inbox_id }
             end
 
             routing.post do

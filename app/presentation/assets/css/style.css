@@ -121,3 +121,20 @@ footer {
   display: flex;
   flex-direction: column;
 }
+
+/* =============
+ * Reusable styles
+ * =============
+ */
+.page-title {
+  text-transform: capitalize;
+}
+
+/* =============
+ * Subscriptions
+ * =============
+ */
+.subscriptions-page-header {
+  display: flex;
+  justify-content: space-between;
+}

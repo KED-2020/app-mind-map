@@ -47,6 +47,10 @@ module MindMap
         @request.add_subscription(params)
       end
 
+      def get_subscriptions(inbox_id)
+        @request.get_subscriptions(inbox_id)
+      end
+
       # HTTP request transmitter
       class Request
         def initialize(config)
@@ -96,6 +100,10 @@ module MindMap
         # post 'api/v1/inboxes/:inbox_id/subscriptions`
         def add_subscription(params)
           post_api(['inboxes', params[:inbox_id], 'subscriptions'], params)
+        end
+
+        def get_subscriptions(inbox_id)
+          call_api('get', ['inboxes', inbox_id, 'subscriptions'])
         end
 
         private
