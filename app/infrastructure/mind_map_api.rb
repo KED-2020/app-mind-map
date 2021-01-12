@@ -35,6 +35,14 @@ module MindMap
         @request.get_document(document_id)
       end
 
+      def save_suggestion(inbox_id, suggestion_id)
+        @request.save_suggestion(inbox_id, suggestion_id)
+      end
+
+      def remove_suggestion(inbox_id, suggestion_id)
+        @request.remove_suggestion(inbox_id, suggestion_id)
+      end
+
       # HTTP request transmitter
       class Request
         def initialize(config)
@@ -63,12 +71,22 @@ module MindMap
 
         # post 'api/v1/favorites/documents?html_url={PROJECT_URL}'
         def add_document(project_url)
-          post_api(['favorites', 'documents'], { 'html_url' => project_url })
+          post_api(['documents'], { 'html_url' => project_url })
         end
 
         # get 'api/v1/favorites/documents/{document_id}'
         def get_document(document_id)
-          call_api('get', ['favorites', 'documents', document_id])
+          call_api('get', ['documents', document_id])
+        end
+
+        # post 'api/v1/inbox/:inbox_id/suggestions/:suggestion_id
+        def save_suggestion(inbox_id, suggestion_id)
+          call_api('post', ['inboxes', inbox_id, 'suggestions', suggestion_id])
+        end
+
+        # delete 'api/v1/inbox/:inbox_id/suggestions/:delete_id
+        def remove_suggestion(inbox_id, suggestion_id)
+          call_api('delete', ['inboxes', inbox_id, 'suggestions', suggestion_id])
         end
 
         private

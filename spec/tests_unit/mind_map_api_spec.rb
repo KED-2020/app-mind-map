@@ -89,7 +89,7 @@ describe 'Unit test of MindMap API gateway' do
     _(data.keys).must_include 'name'
     _(data.keys).must_include 'description'
     _(data.keys).must_include 'url'
-    _(data['url']).must_include INBOX_ID
+    _(data['url']).must_include inbox_id
   end
 
   it 'must not be able to get a non-existent inbox' do
@@ -124,7 +124,7 @@ describe 'Unit test of MindMap API gateway' do
     # GIVEN a document is in the database
     saved_document = MindMap::Gateway::Api.new(MindMap::App.config).add_document(PROJECT_URL)
 
-    good_document_id = saved_document.parse["id"]
+    good_document_id = saved_document.parse['id']
 
     # WHEN we request this document
     res = MindMap::Gateway::Api.new(MindMap::App.config).get_document(good_document_id)
@@ -142,5 +142,57 @@ describe 'Unit test of MindMap API gateway' do
 
     # THEN we should see the error message
     _(res.success?).must_equal false
+  end
+
+  it 'must allow a user to save a suggestion' do
+    # GIVEN an inbox with suggestions
+    inbox_id = MindMap::Gateway::Api.new(MindMap::App.config).get_new_inbox_id.to_s
+
+    params = {
+      'name' => 'Test',
+      'description' => 'Test',
+      # This is to prevent already created errors. We want inbox_id to
+      # be unique on every call to POST.
+      'url' => inbox_id
+    }
+
+    MindMap::Gateway::Api.new(MindMap::App.config).add_inbox(params)
+    inbox = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id).parse
+    suggestion_id = inbox['suggestions'].first['id']
+
+    # WHEN we request to save a suggestion
+    result = MindMap::Gateway::Api.new(MindMap::App.config).save_suggestion(inbox_id, suggestion_id)
+
+    # THEN we should see the inbox suggestions count go down by 1
+    _(result.success?).must_equal true
+
+    updated_inbox = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id).parse
+    _(updated_inbox['suggestions'].count).must_equal inbox['suggestions'].count - 1
+  end
+
+  it 'must allow a user to delete a suggestion' do
+    # GIVEN an inbox with suggestions
+    inbox_id = MindMap::Gateway::Api.new(MindMap::App.config).get_new_inbox_id.to_s
+
+    params = {
+      'name' => 'Test',
+      'description' => 'Test',
+      # This is to prevent already created errors. We want inbox_id to
+      # be unique on every call to POST.
+      'url' => inbox_id
+    }
+
+    MindMap::Gateway::Api.new(MindMap::App.config).add_inbox(params)
+    inbox = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id).parse
+    suggestion_id = inbox['suggestions'].first['id']
+
+    # WHEN we request to save a suggestion
+    result = MindMap::Gateway::Api.new(MindMap::App.config).remove_suggestion(inbox_id, suggestion_id)
+
+    # THEN we should see the inbox suggestions count go down by 1
+    _(result.success?).must_equal true
+
+    updated_inbox = MindMap::Gateway::Api.new(MindMap::App.config).get_inbox(inbox_id).parse
+    _(updated_inbox['suggestions'].count).must_equal inbox['suggestions'].count - 1
   end
 end
