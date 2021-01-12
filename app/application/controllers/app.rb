@@ -23,12 +23,44 @@ module MindMap
 
       # GET /
       routing.root do
+        # Get cookie viewer's inbox id
+        routing.redirect "/inbox/#{session[:inbox_id]}" unless session[:inbox_id].nil?
+
         view 'home'
       end
 
       # GET /document_nil
       routing.on 'document_nil' do
         view 'document_nil'
+      end
+
+      routing.on 'guest-inbox' do
+        routing.get do
+          result = Service::GetInboxId.new.call
+
+          if result.failure?
+            flash[:error] = result.failure
+            routing.redirect '/'
+          end
+
+          inbox_id = result.value!
+          inbox_params = Forms::NewInbox.new.call({
+            'name' => 'Guest Inbox',
+            'description' => 'Your guest inbox for quick access to your suggestions, favorites, and subscriptions.',
+            'url' => inbox_id
+          })
+
+          inbox_result = Service::AddInbox.new.call(inbox_params)
+
+          if inbox_result.failure?
+            flash[:error] = inbox_result.failure
+            routing.redirect "/"
+          end
+
+          session[:inbox_id] = inbox_id
+
+          routing.redirect "/inbox/#{inbox_id}"
+        end
       end
 
       # Inbox
