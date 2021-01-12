@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'http'
+require_relative 'list_request'
 
 module MindMap
   module Gateway
@@ -43,6 +44,16 @@ module MindMap
         @request.remove_suggestion(inbox_id, suggestion_id)
       end
 
+      def add_subscription(params)
+        @request.add_subscription(
+          params.merge(keywords: Value::KeywordsList.to_encoded(params[:keywords]))
+        )
+      end
+
+      def get_subscriptions(inbox_id)
+        @request.get_subscriptions(inbox_id)
+      end
+
       # HTTP request transmitter
       class Request
         def initialize(config)
@@ -69,24 +80,33 @@ module MindMap
           call_api('get', ['inboxes', 'mnemonics'])
         end
 
-        # post 'api/v1/favorites/documents?html_url={PROJECT_URL}'
+        # post 'api/v1/documents?html_url={PROJECT_URL}'
         def add_document(project_url)
           post_api(['documents'], { 'html_url' => project_url })
         end
 
-        # get 'api/v1/favorites/documents/{document_id}'
+        # get 'api/v1/documents/{document_id}'
         def get_document(document_id)
           call_api('get', ['documents', document_id])
         end
 
-        # post 'api/v1/inbox/:inbox_id/suggestions/:suggestion_id
+        # post 'api/v1/inboxes/:inbox_id/suggestions/:suggestion_id
         def save_suggestion(inbox_id, suggestion_id)
           call_api('post', ['inboxes', inbox_id, 'suggestions', suggestion_id])
         end
 
-        # delete 'api/v1/inbox/:inbox_id/suggestions/:delete_id
+        # delete 'api/v1/inboxes/:inbox_id/suggestions/:delete_id
         def remove_suggestion(inbox_id, suggestion_id)
           call_api('delete', ['inboxes', inbox_id, 'suggestions', suggestion_id])
+        end
+
+        # post 'api/v1/inboxes/:inbox_id/subscriptions`
+        def add_subscription(params)
+          post_api(['inboxes', params[:inbox_id], 'subscriptions'], params)
+        end
+
+        def get_subscriptions(inbox_id)
+          call_api('get', ['inboxes', inbox_id, 'subscriptions'])
         end
 
         private
