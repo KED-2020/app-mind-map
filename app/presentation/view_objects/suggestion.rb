@@ -8,6 +8,10 @@ module Views
       @index = index
     end
 
+    def id_str
+      @suggestion.id
+    end
+
     def entity
       @suggestion
     end

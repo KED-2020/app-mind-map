@@ -116,3 +116,8 @@ footer {
 .suggestion-topics {
   display: flex;
 }
+
+.suggestion-action-form {
+  display: flex;
+  flex-direction: column;
+}

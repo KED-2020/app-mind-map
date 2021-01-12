@@ -35,6 +35,14 @@ module MindMap
         @request.get_document(document_id)
       end
 
+      def save_suggestion(inbox_id, suggestion_id)
+        @request.save_suggestion(inbox_id, suggestion_id)
+      end
+
+      def remove_suggestion(inbox_id, suggestion_id)
+        @request.remove_suggestion(inbox_id, suggestion_id)
+      end
+
       # HTTP request transmitter
       class Request
         def initialize(config)
@@ -71,6 +79,16 @@ module MindMap
           call_api('get', ['favorites', 'documents', document_id])
         end
 
+        # post 'api/v1/inbox/:inbox_id/suggestions/:suggestion_id
+        def save_suggestion(inbox_id, suggestion_id)
+          call_api('post', ['inboxes', inbox_id, 'suggestions', suggestion_id])
+        end
+
+        # delete 'api/v1/inbox/:inbox_id/suggestions/:delete_id
+        def remove_suggestion(inbox_id, suggestion_id)
+          call_api('delete', ['inboxes', inbox_id, 'suggestions', suggestion_id])
+        end
+
         private
 
         def params_str(params)
@@ -95,7 +113,8 @@ module MindMap
 
           HTTP.headers('Accept' => 'application/json').send(method, url)
               .then { |http_response| Response.new(http_response) }
-        rescue StandardError
+        rescue StandardError => e
+          pp e
           raise "Invalid URL request: #{url}"
         end
       end

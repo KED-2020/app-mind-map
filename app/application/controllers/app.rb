@@ -50,8 +50,39 @@ module MindMap
         end
 
          # GET /inbox/{inbox_id}
-        routing.is String do |inbox_id|
+        routing.on String do |inbox_id|
           @inbox_id = inbox_id
+
+          routing.on 'suggestions' do
+            routing.on String do |suggestion_id|
+              routing.post do
+                params = Forms::SaveSuggestion.new.call('inbox_id' => @inbox_id,
+                                                        'suggestion_id' => suggestion_id)
+
+                result = Service::SaveSuggestion.new.call(params)
+
+                if result.failure?
+                  flash[:error] = result.failure
+                end
+
+                flash[:success] = 'Suggestion has been saved. This can now be found in `favorites`.'
+                routing.redirect "/inbox/#{@inbox_id}"
+              end
+
+              routing.delete do
+                params = Forms::DeleteSuggestion.new.call('inbox_id' => @inbox_id,
+                                                          'suggestion_id' => suggestion_id)
+
+                result = Service::DeleteSuggestion.new.call(params)
+
+                if result.failure?
+                  flash[:error] = result.failure
+                end
+
+                routing.redirect "/inbox/#{@inbox_id}"
+              end
+            end
+          end
 
           routing.get do
             result = Service::GetInbox.new.call(inbox_id)

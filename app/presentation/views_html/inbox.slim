@@ -1,4 +1,6 @@
 .inbox
+  include :flash_bar
+
   h1.h2.pb-1.my-0 id='inbox_name'
     = inbox.name || 'Untitled Inbox'
   p.pb-2.mb-0.text-muted id='inbox_description'
@@ -23,16 +25,15 @@
                 p.m-0.mb-1
                   = suggestion.description
                 .suggestion-topics
-                  / - if suggestion.topics.any?
-                  /   - suggestion.topics.each.with_index do |topic, index|
-                  /       span.badge.badge-pill.badge-light
-                  /         = tag.name
-                  / - else
                   span.badge.badge-pill.badge-dark.mr-1 From GitHub
                   span.badge.badge-pill.badge-dark.mr-1 tensorflow
 
               .suggestion-actions
-                button type="button" id="favorite" class="btn btn-success btn-sm mb-3" Favorite
-                button type="button" id="discard"  class="btn btn-light btn-sm" Discard
+                form role="form" action="/inbox/#{@inbox_id}/suggestions/#{suggestion.id_str}" method="post" class="suggestion-action-form"
+                  button type="submit" id="favorite" class="btn btn-success mb-3" Favorite
+
+                form role="form" action="/inbox/#{@inbox_id}/suggestions/#{suggestion.id_str}" method="post" class="suggestion-action-form"
+                  input type='hidden' name='_method' value='delete'
+                  button type="submit" id="discard"  class="btn btn-light" Discard
   - else
     h5 No Suggestions Found
