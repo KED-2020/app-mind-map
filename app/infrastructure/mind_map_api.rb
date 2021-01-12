@@ -71,12 +71,12 @@ module MindMap
 
         # post 'api/v1/favorites/documents?html_url={PROJECT_URL}'
         def add_document(project_url)
-          post_api(['favorites', 'documents'], { 'html_url' => project_url })
+          post_api(['documents'], { 'html_url' => project_url })
         end
 
         # get 'api/v1/favorites/documents/{document_id}'
         def get_document(document_id)
-          call_api('get', ['favorites', 'documents', document_id])
+          call_api('get', ['documents', document_id])
         end
 
         # post 'api/v1/inbox/:inbox_id/suggestions/:suggestion_id
@@ -113,8 +113,7 @@ module MindMap
 
           HTTP.headers('Accept' => 'application/json').send(method, url)
               .then { |http_response| Response.new(http_response) }
-        rescue StandardError => e
-          pp e
+        rescue StandardError
           raise "Invalid URL request: #{url}"
         end
       end
