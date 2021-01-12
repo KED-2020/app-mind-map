@@ -111,7 +111,7 @@ module MindMap
 
               if result.failure?
                 flash[:error] = result.failure
-                routing.redirect "/inbox/#{inbox_id}/subscriptions"
+                routing.redirect "/inbox/#{inbox_id}/subscriptions/new"
               end
 
               routing.redirect "/inbox/#{inbox_id}/subscriptions"

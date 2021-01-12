@@ -19,14 +19,14 @@ module MindMap
 
       def validate_params(input)
         if input.success?
-          Success(input)
+          Success(input.to_h.merge(keywords: input.to_h[:keywords].split(', ')))
         else
           Failure(input.errors.values.join('; '))
         end
       end
 
       def create_subscription(input)
-        result = MindMap::Gateway::Api.new(MindMap::App.config).add_subscription(input.to_h)
+        result = MindMap::Gateway::Api.new(MindMap::App.config).add_subscription(input)
 
         result.success? ? Success(result.payload) : Failure(result.message)
       rescue StandardError

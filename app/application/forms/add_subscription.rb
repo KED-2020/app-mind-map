@@ -11,6 +11,7 @@ module MindMap
         required(:inbox_id).filled(:string)
         required(:name).filled(:string)
         required(:description).filled(:string)
+        required(:keywords).filled(:string)
       end
 
       rule(:inbox_id) do

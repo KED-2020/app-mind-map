@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'http'
+require_relative 'list_request'
 
 module MindMap
   module Gateway
@@ -44,7 +45,9 @@ module MindMap
       end
 
       def add_subscription(params)
-        @request.add_subscription(params)
+        @request.add_subscription(
+          params.merge(keywords: Value::KeywordsList.to_encoded(params[:keywords]))
+        )
       end
 
       def get_subscriptions(inbox_id)

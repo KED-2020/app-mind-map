@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require_relative 'keyword'
+
 module Views
   # View for a single subscription entity
   class Subscription
@@ -29,9 +31,13 @@ module Views
     end
 
     def keywords
-      ['Bitcoin', 'Python'].each do |keyword|
-        yield keyword
+      @subscription.keywords.map.with_index do |keyword, i|
+        Keyword.new(keyword, i)
       end
+    end
+
+    def any_keywords?
+      @subscription.keywords.any?
     end
   end
 end

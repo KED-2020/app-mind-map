@@ -24,8 +24,8 @@
             td = subscription.name
             td = subscription.description
             td
-              - subscription.keywords do |keyword|
-                  span.badge.badge-pill.badge-primary.mr-1 = keyword
+              - subscription.keywords.map do |keyword|
+                  span.badge.badge-pill.badge-primary.mr-1 = keyword.name
             td Github, Wikimedia
   - else
     h5 No Subscriptions Found
