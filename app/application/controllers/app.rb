@@ -118,12 +118,34 @@ module MindMap
             end
           end
 
+          routing.on 'favorites' do
+            result = Service::GetFavorites.new.call(inbox_id)
+
+            if result.failure?
+              flash[:error] = result.failure
+              routing.redirect "inbox/#{inbox_id}"
+            end
+
+            documents = result.value!.documents
+
+            viewable_documents = Views::DocumentsList.new(documents)
+
+            view 'favorites', locals: { documents: viewable_documents, inbox_id: inbox_id }
+          end
+
           routing.get do
             result = Service::GetInbox.new.call(inbox_id)
 
             if result.failure?
-              flash[:error] = result.failure
-              routing.redirect '/'
+              redirect_path = if result.failure.include?('add a subscription')
+                                flash[:notice] = result.failure
+                                "/inbox/#{inbox_id}/subscriptions"
+                              else
+                                flash[:error] = result.failure
+                                "/inbox/#{inbox_id}"
+                              end
+
+              routing.redirect redirect_path
             end
 
             inbox = result.value!

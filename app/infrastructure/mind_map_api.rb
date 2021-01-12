@@ -54,6 +54,10 @@ module MindMap
         @request.get_subscriptions(inbox_id)
       end
 
+      def get_favorites(inbox_id)
+        @request.get_favorites(inbox_id)
+      end
+
       # HTTP request transmitter
       class Request
         def initialize(config)
@@ -107,6 +111,10 @@ module MindMap
 
         def get_subscriptions(inbox_id)
           call_api('get', ['inboxes', inbox_id, 'subscriptions'])
+        end
+
+        def get_favorites(inbox_id)
+          call_api('get', ['inboxes', inbox_id, 'documents'])
         end
 
         private
