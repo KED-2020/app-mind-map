@@ -1,0 +1,27 @@
+section.border.rounded.homepage
+  h1.h4 Create New Subscription
+  small.form-text.text-muted.mb-3 Subscriptions helps us curate better articles for you.
+
+  include :flash_bar
+
+  form.py-3.inbox-search-form role="form" action="/inbox/#{inbox_id}/subscriptions" method="post"
+    input type='hidden' name='inbox_id' value=inbox_id
+
+    label for="name" Name
+    input {
+      type="text" name="name"
+      id="name" class="form-control mb-3"
+      placeholder="What is this subscription called?"
+    }
+
+    label for="description" Description
+    input {
+      type="text" name="description"
+      id="description" class="form-control mb-3"
+      placeholder="Provide a brief description of the subscription"
+    }
+
+    button {
+      type="submit" id="inbox-submit"
+      class="btn btn-success"
+    } Add Subscription

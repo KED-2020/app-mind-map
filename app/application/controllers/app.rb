@@ -84,6 +84,29 @@ module MindMap
             end
           end
 
+          routing.on 'subscriptions' do
+            routing.on 'new' do
+              view 'new_subscription', locals: { inbox_id: @inbox_id }
+            end
+
+            routing.get do
+              view 'subscriptions'
+            end
+
+            routing.post do
+              subscription_params = Forms::AddSubscription.new.call(routing.params)
+
+              result = Service::AddSubscription.new.call(subscription_params)
+
+              if result.failure?
+                flash[:error] = result.failure
+                routing.redirect "/inbox/#{inbox_id}/subscriptions"
+              end
+
+              routing.redirect "/inbox/#{inbox_id}/subscriptions"
+            end
+          end
+
           routing.get do
             result = Service::GetInbox.new.call(inbox_id)
 
