@@ -9,7 +9,7 @@
     = "#{inbox.num_suggestions || 0 } suggestions"
 
   - if inbox.suggestions.any?
-    h5 Suggestions
+    h4 = "Suggestions (#{inbox.suggestions.total})"
 
     ul.list-group
       - inbox.suggestions.each do |suggestion|

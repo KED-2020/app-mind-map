@@ -9,6 +9,10 @@ module Views
       @suggestions = suggestions.map.with_index { |suggestion, i| Suggestion.new(suggestion, i) }
     end
 
+    def total
+      @suggestions.count
+    end
+
     def each
       @suggestions.each do |suggestion|
         yield suggestion

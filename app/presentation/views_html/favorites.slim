@@ -1,0 +1,24 @@
+.inbox
+  include :flash_bar
+
+  h1.h2.pb-1.my-0.page-title id='favorites' = "Favorites (#{documents.total})"
+
+  p.pb-2.mb-0.text-muted id='subscriptions-description'
+    = 'This is where you can find all the documents you have saved in your inbox.'
+
+  - if documents.any?
+    ul.list-group
+      - documents.each do |document|
+          li.list-group-item.border.mb-3.p-3 id="#{document.index_str}" title=document.name
+            .suggestion-heading
+              .h5.my-0
+                a href=document.source id="#{document.index_str}.link"
+                  = document.name
+            .suggestion-body
+              .suggestion-description
+                p.m-0.mb-1
+                  = document.description
+  - else
+    h5 No saved documents found
+
+    button type="button" id="add-subscription" onclick="location.href='/inbox/#{inbox_id}/subscriptions/new';" class="btn btn-success" Add Subscription

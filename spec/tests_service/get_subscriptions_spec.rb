@@ -18,7 +18,7 @@ describe 'Integration test of GetSubscriptions service and API gateway' do
       'inbox_id' => inbox_id
     }))
 
-    # WHEN we request a list of projects
+    # WHEN we request a list of subscriptions
     result = MindMap::Service::GetSubscriptions.new.call(inbox_id)
 
     # THEN we should see a single project in the list
@@ -37,10 +37,10 @@ describe 'Integration test of GetSubscriptions service and API gateway' do
       'url' => inbox_id
     })).value!
 
-    # WHEN we request a list of projects
+    # WHEN we request a list of subscriptions
     result = MindMap::Service::GetSubscriptions.new.call(inbox_id)
 
-    # THEN we should see a no projects in the list
+    # THEN we should see a no subscriptions in the list
     _(result.success?).must_equal true
     list = result.value!
     _(list.subscriptions.count).must_equal 0
