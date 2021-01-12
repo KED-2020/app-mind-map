@@ -137,8 +137,15 @@ module MindMap
             result = Service::GetInbox.new.call(inbox_id)
 
             if result.failure?
-              flash[:error] = result.failure
-              routing.redirect '/'
+              redirect_path = if result.failure.include?('add a subscription')
+                                flash[:notice] = result.failure
+                                "/inbox/#{inbox_id}/subscriptions"
+                              else
+                                flash[:error] = result.failure
+                                "/inbox/#{inbox_id}"
+                              end
+
+              routing.redirect redirect_path
             end
 
             inbox = result.value!
